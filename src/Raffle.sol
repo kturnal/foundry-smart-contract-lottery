@@ -37,6 +37,7 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 contract Raffle is VRFConsumerBaseV2Plus {
     //  Errors
     error Raffle__SendMoreToEnterRaffle();
+    error Raffle__TransferFailed();
 
     /* State Variables */
 
@@ -58,7 +59,10 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint256 private immutable i_interval;
     // @dev last time the raffle was run
     uint256 private s_lastTimeStamp;
-    address payable[] private s_players; // list of entrees. one of them needs to get the rewards, so we need a payable array.
+    // @dev the most recent winner
+    address private s_recentWinner;
+    // @dev // list of entrees. one of them needs to get the rewards, so we need a payable array.
+    address payable[] private s_players; 
 
     /* Events */
     event RaffleEntered(address indexed player);
@@ -123,8 +127,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function fulfillRandomWords(
         uint256,
-        /* requestId */ uint256[] calldata randomWords
-    ) internal override {}
+        /* requestId */ uint256[] calldata randomWords // TODO check calldata vs memory
+    ) internal override { //inside the interface, chainlink node will call rawFulFullRandomWords(), and call this function
+        uint256 indexOfWinner = randomWords[0] % s_players.length;
+        address payable recentWinner = s_players[indexOfWinner];
+        // Transfer the pot to the winner
+        s_recentWinner = recentWinner;
+        (bool success,) = recentWinner.call{value:address(this).balance}(""); // give winner the entire balance of this contract.
+        if (!success) {
+            revert Raffle__TransferFailed();
+        }
+    }
 
     /** Getter Function */
 
