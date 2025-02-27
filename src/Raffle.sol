@@ -25,8 +25,7 @@ pragma solidity 0.8.19;
 
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
-
-// import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
+import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 /**
  * @title A sample Raffle Contract
@@ -40,6 +39,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__SendMoreToEnterRaffle();
     error Raffle__TransferFailed();
     error Raffle__RaffleNotOpen();
+    error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
 
     /* Type declarations */
     enum RaffleState {
@@ -112,9 +112,39 @@ contract Raffle is VRFConsumerBaseV2Plus {
         emit RaffleEntered(msg.sender); //anytime you update the storage, you want to emit an event.
     }
 
-    // Pick a winner out of the entrees using Chainlink VRF
-    function pickWinner() external {
-        //TODO check diff in public&external
+    /**
+     * @dev This is the function that the Chainlink Keeper nodes call
+     * they look for `upkeepNeeded` to return True.
+     * the following should be true for this to return true:
+     * 1. The time interval has passed between raffle runs.
+     * 2. The lottery is open.
+     * 3. The contract has ETH.
+     * 4. Implicity, your subscription is funded with LINK.
+     */
+    function checkUpkeep(bytes memory /* checkData */ )
+        public
+        view
+        // override
+        returns (bool upkeepNeeded, bytes memory /* performData */ )
+    {
+        bool isOpen = RaffleState.OPEN == s_raffleState;
+        bool hasEnoughTimePassed = ((block.timestamp - s_lastTimeStamp) >= i_interval);
+        bool hasPlayers = s_players.length > 0;
+        bool hasBalance = address(this).balance > 0;
+        upkeepNeeded = hasEnoughTimePassed && isOpen && hasBalance && hasPlayers;
+        return (upkeepNeeded, "0x0"); // 0x0 returns null.
+    }
+
+    /**
+     * @dev Once `checkUpkeep` is returning `true`, this function is called
+     * and it kicks off a Chainlink VRF call to get a random winner.
+     */
+    function performUpkeep(bytes calldata /* performData */) external /*override*/ { //TODO check diff in public&external
+        (bool upkeeepNeeded,) = checkUpkeep("");
+        if (!upkeeepNeeded) {
+            // pass enum as uint256 to make it easier to understand the revert reason.
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
+        }
         // check if enough time has passed since the last raffle
         if ((block.timestamp - s_lastTimeStamp) < i_interval) {
             revert();
