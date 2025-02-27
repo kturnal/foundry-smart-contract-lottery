@@ -18,7 +18,7 @@ To invoke an event, you call the emit() function with the necessary parameters.
 
 CEI methods stands for Checks, Effects, Interactions. Sometimes called as FREI-PI: Function Requirements Effects-Interactions Protocol Invariants. This a protocol to follow to ensure we are using gas efficiently, and defend against reentrancy attacks.
 An example: 
-
+```
 function foo() public {
     // Checks <-- check first, revert if condition is not fulfilled -->
     checkX();
@@ -30,5 +30,10 @@ function foo() public {
     // Interactions
     sendA(); <--external contract interactions (e.g. send tokens, call other contracts, irreversible) -->
     callB();
-
 }
+```
+
+## Function Selector Signatures
+
+- You can check a function signature on a a function signature database, such as openchain.xyz. Using the hash of the function, you can cross-check if the name of the function matches that in the database.
+- Function signatures can automatically be uploaded to databases using Foundry. Check: https://book.getfoundry.sh/
