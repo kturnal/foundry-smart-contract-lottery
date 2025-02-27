@@ -37,3 +37,12 @@ function foo() public {
 
 - You can check a function signature on a a function signature database, such as openchain.xyz. Using the hash of the function, you can cross-check if the name of the function matches that in the database.
 - Function signatures can automatically be uploaded to databases using Foundry. Check: https://book.getfoundry.sh/
+
+## Using Sepolia Testnet with A Real Wallet
+
+- Store $SEPOLIA_RPC_URL in an .env file
+  - Add the .env to .gitignore!
+  - Never work with a wallet that has real money in it!
+- Add your account in the .env file
+- cast wallet import myaccount --interactive (requires password)
+- forge script script/Interactions.s.sol:FundSubscription --rpc-url $SEPOLIA_RPC_URL --addcount default --broadcast

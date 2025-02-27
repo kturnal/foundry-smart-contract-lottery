@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
-// import {LinkToken} from "../test/mocks/LinkToken.sol";
+import {LinkToken} from "../test/mocks/LinkToken.sol";
 
 abstract contract CodeConstants {
     uint256 public constant ETH_SEPOLIA_CHAIN_ID = 11155111;
@@ -31,6 +31,7 @@ contract HelperConfig is Script, CodeConstants {
         uint256 entranceFee;
         uint32 callbackGasLimit;
         address vrfCoordinatorV2_5;
+        address link;
     }
 
     NetworkConfig public localNetworkConfig;
@@ -59,16 +60,16 @@ contract HelperConfig is Script, CodeConstants {
     }
 
     function getMainnetEthConfig() public pure returns (NetworkConfig memory mainnetNetworkConfig) {
-    mainnetNetworkConfig = NetworkConfig({
-        subscriptionId: 0, // If left as 0, our scripts will create one!
-        gasLane: 0x9fe0eebf5e446e3c998ec9bb19951541aee00bb90ea201ae456421a2ded86805,
-        interval: 30, // 30 seconds
-        entranceFee: 0.01 ether,
-        callbackGasLimit: 500000, // 500,000 gas
-        vrfCoordinatorV2_5: 0x271682DEB8C4E0901D1a1550aD2e64D568E69909
-        //link: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
-        //account: 0x643315C9Be056cDEA171F4e7b2222a4ddaB9F88D
-    });
+        mainnetNetworkConfig = NetworkConfig({
+            subscriptionId: 0, // If left as 0, our scripts will create one!
+            gasLane: 0x9fe0eebf5e446e3c998ec9bb19951541aee00bb90ea201ae456421a2ded86805,
+            interval: 30, // 30 seconds
+            entranceFee: 0.01 ether,
+            callbackGasLimit: 500000, // 500,000 gas
+            vrfCoordinatorV2_5: 0x271682DEB8C4E0901D1a1550aD2e64D568E69909,
+            link: 0x514910771AF9Ca656af840dff83E8264EcF986CA
+            //account: 0x643315C9Be056cDEA171F4e7b2222a4ddaB9F88D
+        });
     }
 
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
@@ -76,9 +77,10 @@ contract HelperConfig is Script, CodeConstants {
             entranceFee: 0.01 ether,
             interval: 30, //30 seconds
             gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae, //gasLaneKeyHash from Chainlink VRF Docs
-            subscriptionId: 0,
+            subscriptionId: 48391996479670473918145888405095440788868310006543644955361398233732681090832, // to use, pass in the actual subscriptionID from vrf.chain.link
             callbackGasLimit: 500000, // 500,000 gas
-            vrfCoordinatorV2_5: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B //VRF Coordinator address from Chainlink VRF Docs
+            vrfCoordinatorV2_5: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B, //VRF Coordinator address from Chainlink VRF Docs
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789
         });
     }
 
@@ -93,19 +95,19 @@ contract HelperConfig is Script, CodeConstants {
         vm.startBroadcast();
         VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock =
             new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
-        //_sendLogPayloadLinkToken link = new LinkToken();
+        LinkToken linkToken = new LinkToken();
         uint256 subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
-            subscriptionId: subscriptionId,
+            subscriptionId: 0, //subscriptionId,
             // gasLane doesnt matter for mock
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, // doesn't really matter
             interval: 30, // 30 seconds
             entranceFee: 0.01 ether,
             callbackGasLimit: 500000, // 500,000 gas
-            vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock)
-           // link: address(link),
+            vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock),
+            link: address(linkToken)
             //account: FOUNDRY_DEFAULT_SENDER
         });
        // vm.deal(localNetworkConfig.account, 100 ether);
