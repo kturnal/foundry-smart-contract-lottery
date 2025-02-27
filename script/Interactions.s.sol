@@ -27,7 +27,7 @@ contract CreateSubscription is Script {
         return (subId, vrfCoordinatorV2_5);
     }
 
-    function run() public {
+    function run() external returns(uint256, address) {
         createSubscriptionUsingConfig();
     }
 }
@@ -43,8 +43,8 @@ contract FundSubscription is CodeConstants, Script {
         address account = helperConfig.getConfig().account;
 
         if (subscriptionId == 0) {
-            CreateSubscription createSub = new CreateSubscription();
-            (uint256 updatedSubId, address updatedVRFv2) = createSub.run();
+            CreateSubscription createSubContract = new CreateSubscription();
+            (uint256 updatedSubId, address updatedVRFv2) = createSubContract.run();
             subscriptionId = updatedSubId;
             vrfCoordinatorV2_5 = updatedVRFv2;
             console.log("New SubId Created! ", subscriptionId, "VRF Address: ", vrfCoordinatorV2_5);
@@ -79,6 +79,7 @@ contract FundSubscription is CodeConstants, Script {
     }
 }
 
+// You can also do this step on the Chainlink VRF website by adding a VRF consumer.
 contract AddConsumer is Script {
     function addConsumerUsingConfig(address mostRecentlyDeployed) public {
         HelperConfig helperConfig = new HelperConfig();
@@ -89,12 +90,13 @@ contract AddConsumer is Script {
         addConsumer(mostRecentlyDeployed, vrfCoordinatorV2_5, subscriptionId);
     }
 
-    function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subscriptionId) public {
+    function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subscriptionId) public { //+address
         console.log("Adding consumer contract: ", contractToAddToVrf);
         console.log("Using vrfCoordinator: ", vrfCoordinator);
         console.log("On ChainID: ", block.chainid);
         vm.startBroadcast();
-        VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subId, contractToAddToVrf);
+        
+        VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subscriptionId, contractToAddToVrf);
         vm.stopBroadcast();
     }
 

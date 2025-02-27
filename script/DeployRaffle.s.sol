@@ -14,23 +14,20 @@ contract DeployRaffle is Script {
         //  if on sepolia/mainnet, it will load the config associated with the network/chainId
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
 
-        //AddConsumer addConsumer = new AddConsumer();
-
         if(config.subscriptionId == 0) {
             //  create subscription
             CreateSubscription subscriptionContract = new CreateSubscription();
             //  save generated subscription data to NetworkConfig
-            // (config.subscriptionId, config.vrfCoordinatorV2_5) = subscriptionContract.createSubscriptionUsingConfig();
-            (config.subscriptionId, config.vrfCoordinator) = subscriptionContract.createSubscription(config.vrfCoordinatorV2_5, config.account);
+            (config.subscriptionId, config.vrfCoordinatorV2_5) = subscriptionContract.createSubscription(config.vrfCoordinatorV2_5, config.account);
 
-            //  fund subscription
+            // fund subscription
 
-        //     FundSubscription fundSubscription = new FundSubscription();
-        //     fundSubscription.fundSubscription(
-        //         config.vrfCoordinatorV2_5, config.subscriptionId, config.link, config.account
-        //     );
+            FundSubscription fundSubscription = new FundSubscription();
+            fundSubscription.fundSubscription(
+                config.vrfCoordinatorV2_5, config.subscriptionId, config.link, config.account
+            );
 
-        //     helperConfig.setConfig(block.chainid, config);
+            helperConfig.setConfig(block.chainid, config);
 
         }
 
@@ -45,8 +42,10 @@ contract DeployRaffle is Script {
         );
         vm.stopBroadcast();
 
-        // We already have a broadcast in here
-        // addConsumer.addConsumer(address(raffle), config.vrfCoordinatorV2_5, config.subscriptionId, config.account);
+        AddConsumer addConsumer = new AddConsumer();
+        // We already have a broadcast in AddConsumer.addConsumer()
+        addConsumer.addConsumer(address(raffle), config.vrfCoordinatorV2_5, config.subscriptionId, config.account);
+
         return (raffle, helperConfig);
     }
 }
