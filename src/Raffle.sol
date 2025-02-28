@@ -77,6 +77,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /* Events */
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
+    event RequestedRaffleWinner(uint256 indexed requestId);
 
     constructor(
         uint256 subscriptionId,
@@ -166,11 +167,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 )
             })
         );
-        // Use the random number to pick a player
-
-        // automatic call
-
-        // Transfer the pot to the winner
+        // Actually redundant, since the Chainlink VRF node will call fulfillRandomWords() which emits an event, with the requestID as a parameter.
+        // But for the sake or easier testing, we leave this line here as well.
+        emit RequestedRaffleWinner(requestId);
     }
 
     function fulfillRandomWords(

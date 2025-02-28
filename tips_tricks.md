@@ -46,3 +46,9 @@ function foo() public {
 - Add your account in the .env file
 - cast wallet import myaccount --interactive (requires password)
 - forge script script/Interactions.s.sol:FundSubscription --rpc-url $SEPOLIA_RPC_URL --addcount default --broadcast
+
+## Checking which lines are not covered in tests
+This command will paste the output of the covrage on the lines that are not covered:
+```
+forge coverage --report debug > coverage.txt
+```
