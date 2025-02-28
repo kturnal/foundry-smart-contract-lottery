@@ -102,7 +102,7 @@ contract HelperConfig is Script, CodeConstants {
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
-            subscriptionId: subscriptionId, //subscriptionId,
+            subscriptionId: 0, //subscriptionId,
             // gasLane doesnt matter for mock
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, // doesn't really matter
             interval: 30, // 30 seconds

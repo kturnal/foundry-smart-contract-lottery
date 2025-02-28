@@ -33,7 +33,7 @@ contract CreateSubscription is Script {
 }
 
 contract FundSubscription is CodeConstants, Script {
-    uint96 public constant FUND_AMOUNT = 3 ether; // Is atcually 3 LINK.
+    uint96 public constant FUND_AMOUNT = 3 ether; // Is actually 3 LINK.
 
     function fundSubscriptionUsingConfig() public {
         HelperConfig helperConfig = new HelperConfig();
@@ -60,7 +60,7 @@ contract FundSubscription is CodeConstants, Script {
         // if deploying on the local anvil chain:
         if (block.chainid == LOCAL_CHAIN_ID) {
             vm.startBroadcast(account);
-            VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fundSubscription(subId, FUND_AMOUNT);
+            VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fundSubscription(subId, FUND_AMOUNT * 1000);
             vm.stopBroadcast();
         } else {
             console.log(LinkToken(linkToken).balanceOf(msg.sender));
@@ -92,7 +92,7 @@ contract AddConsumer is Script {
 
     function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subscriptionId) public { //+address
         console.log("Adding consumer contract: ", contractToAddToVrf);
-        console.log("Using vrfCoordinator: ", vrfCoordinator);
+        console.log("[AddConsumer] Using vrfCoordinator: ", vrfCoordinator);
         console.log("On ChainID: ", block.chainid);
         vm.startBroadcast();
         
