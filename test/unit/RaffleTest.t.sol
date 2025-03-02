@@ -103,6 +103,14 @@ contract RaffleTest is Test {
         assert(!upkeepNeeded);
     }
 
+    modifier raffleEnteredMod() {
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + interval + 1);
+        vm.roll(block.number + 1);
+        _;
+    }
+
     function testCheckUpkeepReturnsFalseIfRaffleIsntOpen() public raffleEnteredMod {
         // Arrange
         raffle.performUpkeep("");
@@ -159,14 +167,6 @@ contract RaffleTest is Test {
         raffle.performUpkeep("");
     }
 
-    modifier raffleEnteredMod() {
-        vm.prank(PLAYER);
-        raffle.enterRaffle{value: entranceFee}();
-        vm.warp(block.timestamp + interval + 1);
-        vm.roll(block.number + 1);
-        _;
-    }
-
     function testPerformUpkeekUpdatesRaffleStateAndEmitsRequestId() public raffleEnteredMod {
         // Act
         vm.recordLogs(); //vm starts recording all emitted events.
@@ -182,8 +182,17 @@ contract RaffleTest is Test {
         assert(raffleState == Raffle.RaffleState.CALCULATING); // make sure raffle state is calculating
     }
 
+    // FulfillRandomWords Tests
+
+    modifier skipFork() {
+        if (block.chainid != 31337) {
+            return;
+        }
+        _;
+    }
+
     // Adding randomRequestId parameter introduces fuzz testing with random words.
-    function testFulfillRandomCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEnteredMod {
+    function testFulfillRandomCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEnteredMod skipFork{
         // Arrange & Act & Assert
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
         // we can call fulfillRandomWords because we are using a mock.
@@ -191,12 +200,8 @@ contract RaffleTest is Test {
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
     }
 
-    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEnteredMod {
-        // if (block.chainid != 31337) {
-        //     return;
-        // }
+    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEnteredMod skipFork{
         address expectedWinner = address(1);
-
         // Arrange
         uint256 additionalEntrances = 3;
         uint256 startingIndex = 1; // We have starting index be 1 so we can start with address(1) and not address(0)

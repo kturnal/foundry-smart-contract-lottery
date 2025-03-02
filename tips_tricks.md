@@ -38,7 +38,7 @@ function foo() public {
 - You can check a function signature on a a function signature database, such as openchain.xyz. Using the hash of the function, you can cross-check if the name of the function matches that in the database.
 - Function signatures can automatically be uploaded to databases using Foundry. Check: https://book.getfoundry.sh/
 
-## Using Sepolia Testnet with A Real Wallet
+## Importing Wallet into Foundry Forge & Using Sepolia Testnet with A Real Wallet
 
 - Store $SEPOLIA_RPC_URL in an .env file
   - Add the .env to .gitignore!
@@ -52,3 +52,20 @@ This command will paste the output of the covrage on the lines that are not cove
 ```
 forge coverage --report debug > coverage.txt
 ```
+
+## Testing Deep Dive
+There are different kinds of tests, each with increasing complexity. 
+- Unit: Test basic (unit) functionalities of your code.
+- Integration: Test how different components/scripts/contracts of your code interact with each other.
+- Forked: Test your code on different blockchain networks.
+- Staging: Run your tests on a mainnet or testnet.
+
+Also, pay attention to these concepts: 
+- Fuzzing: Running tests with random input parameters.
+- Stateful Fuzz
+- Stateless Fuzz
+- Formal Verification: Turn your code into mathematical proofs.
+
+## Additional Info on Running this with Chainlink Services
+- This course goes through setting up everything programmatically for running a smart contract lottery in a provably fair way. However, setting up the automation upkeep is not handled in the programming course. For that, you have to set it up through automation.chain.link. 
+- For more information, see: https://updraft.cyfrin.io/courses/foundry/smart-contract-lottery/testnet-demo

@@ -59,8 +59,8 @@ contract FundSubscription is CodeConstants, Script {
         console.log("On ChainID: ", block.chainid);
         // if deploying on the local anvil chain:
         if (block.chainid == LOCAL_CHAIN_ID) {
-            vm.startBroadcast(account);
-            VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fundSubscription(subId, FUND_AMOUNT * 1000);
+            vm.startBroadcast(account); // we actually dont need to pass account here, but we do it for consistency.
+            VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fundSubscription(subId, FUND_AMOUNT * 100);
             vm.stopBroadcast();
         } else {
             console.log(LinkToken(linkToken).balanceOf(msg.sender));
@@ -86,15 +86,14 @@ contract AddConsumer is Script {
         uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
         address vrfCoordinatorV2_5 = helperConfig.getConfig().vrfCoordinatorV2_5;
         address account = helperConfig.getConfig().account;
-
-        addConsumer(mostRecentlyDeployed, vrfCoordinatorV2_5, subscriptionId);
+        addConsumer(mostRecentlyDeployed, vrfCoordinatorV2_5, subscriptionId, account);
     }
 
-    function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subscriptionId) public { //+address
+    function addConsumer(address contractToAddToVrf, address vrfCoordinator, uint256 subscriptionId, address account) public {
         console.log("Adding consumer contract: ", contractToAddToVrf);
         console.log("[AddConsumer] Using vrfCoordinator: ", vrfCoordinator);
         console.log("On ChainID: ", block.chainid);
-        vm.startBroadcast();
+        vm.startBroadcast(account);
         
         VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subscriptionId, contractToAddToVrf);
         vm.stopBroadcast();
