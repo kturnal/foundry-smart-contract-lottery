@@ -2,10 +2,9 @@
 
 ## About
 
-This code is to create a proveably random smart contract lottery, based from Cyfrin Updraft Foundry Course. Check it out here: https://github.com/Cyfrin/foundry-smart-contract-lottery-cu. 
+This code is to create a provably random smart contract lottery, based on Cyfrin Updraft Foundry Course. It uses Chainlink VRF and Automation to randomly select a lottery winner in fixed intervals, given if there are any participants. Check it out here: https://github.com/Cyfrin/foundry-smart-contract-lottery-cu. 
 
 For tips and tricks I wrote down when working with smart contract development, testing and deployment, go to [tips & tricks](tips_tricks.md).
-
 
 # Getting Started
 
